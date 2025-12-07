@@ -696,7 +696,7 @@ footer {
   border-radius: 16px;
   box-shadow: 0 24px 40px rgba(0, 0, 0, 0.4);
   overflow: hidden;
-  max-height: 520px;
+  max-height: none;
 }
 
 .watch-player video {
@@ -704,6 +704,14 @@ footer {
   height: 100%;
   object-fit: cover;
   display: block;
+  background: #000;
+}
+.watch-player iframe {
+  display: block;
+  width: 100%;
+  height: min(70vh, 640px);
+  aspect-ratio: 16 / 9;
+  border: none;
   background: #000;
 }
 
