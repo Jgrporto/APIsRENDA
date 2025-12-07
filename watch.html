@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -59,29 +59,29 @@
         </a>
         <div class="watch-player">
           <video id="mainVideo" controls poster="img/Aula1.png">
-            <source src="teste.mp4" type="video/mp4">
+            <source src="videos/captacao-clientes.mp4" type="video/mp4">
             Seu navegador nao suporta video.
           </video>
         </div>
         <div class="watch-meta">
           <div class="watch-tag">Trafego pago</div>
           <div class="watch-actions">
-            <button class="pill-btn" type="button" aria-label="Gostei">
+            <button class="pill-btn" id="likeBtn" type="button" aria-label="Gostei" aria-pressed="false" disabled>
               <svg viewBox="0 0 24 24"><path d="M12 21s-6-4.35-9-8.26C1.15 11.48 1 10.57 1 9.9C1 7.75 2.81 6 5.02 6c1.39 0 2.73.71 3.47 1.8h1.02C10.25 6.71 11.59 6 12.98 6C15.19 6 17 7.75 17 9.9c0 .67-.15 1.58-2 2.84C18 16.65 12 21 12 21z"/></svg>
               Like
             </button>
-            <button class="pill-btn" type="button" aria-label="Favoritar">
-              <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-              Salvar
-            </button>
           </div>
         </div>
-        <h2 class="watch-title">Fundamentos de trafego pago</h2>
+        <h2 class="watch-title" data-video-id="captacao-clientes">Captacao de Clientes</h2>
+        <p class="muted">Coloque o arquivo local em <code>videos/captacao-clientes.mp4</code> para reproduzir.</p>
         <section class="comments">
           <h3>Comentarios</h3>
-          <form class="comment-form">
-            <textarea placeholder="Escreva seu comentario..."></textarea>
-            <button type="button">Enviar</button>
+          <form class="comment-form" id="commentForm">
+            <textarea id="commentInput" placeholder="Escreva seu comentario..." required></textarea>
+            <div class="comment-actions">
+              <button type="submit" id="commentSubmit">Enviar</button>
+              <span class="muted" id="commentStatus"></span>
+            </div>
           </form>
         </section>
       </section>
@@ -91,32 +91,46 @@
           <h3>Trilha de aulas</h3>
           <p>Selecione para assistir</p>
         </div>
-        <div class="lesson-card active" data-src="teste.mp4" data-poster="img/Aula1.png" data-title="Fundamentos de trafego pago">
-          <div class="lesson-thumb"><img src="img/Aula1.png" alt="Fundamentos de trafego pago"></div>
+        <div class="lesson-card active" data-id="captacao-clientes" data-available="true" data-src="videos/captacao-clientes.mp4" data-poster="img/Aula1.png" data-title="Captacao de Clientes">
+          <div class="lesson-thumb"><img src="img/Aula1.png" alt="Captacao de Clientes"></div>
           <div class="lesson-body">
-            <h4>Fundamentos de trafego pago</h4>
+            <h4>Captacao de Clientes</h4>
             <p>Aula 1</p>
           </div>
         </div>
-        <div class="lesson-card" data-src="teste.mp4" data-poster="img/EmProducao.png" data-title="Creatives que convertem">
+        <div class="lesson-card disabled" data-id="creatives" data-available="false" data-poster="img/EmProducao.png" data-title="Creatives que convertem">
           <div class="lesson-thumb"><img src="img/EmProducao.png" alt="Creatives que convertem"></div>
           <div class="lesson-body">
             <h4>Creatives que convertem</h4>
-            <p>Aula 2</p>
+            <p>Aula 2 (em producao)</p>
           </div>
         </div>
-        <div class="lesson-card" data-src="teste.mp4" data-poster="img/EmProducao.png" data-title="Metricas e escala">
+        <div class="lesson-card disabled" data-id="metricas" data-available="false" data-poster="img/EmProducao.png" data-title="Metricas e escala">
           <div class="lesson-thumb"><img src="img/EmProducao.png" alt="Metricas e escala"></div>
           <div class="lesson-body">
             <h4>Metricas e escala</h4>
-            <p>Aula 3</p>
+            <p>Aula 3 (em producao)</p>
           </div>
         </div>
       </aside>
     </div>
   </main>
 
-  <script src="scripts.js"></script>
+  <div class="search-modal" id="searchModal" hidden>
+    <div class="modal-surface">
+      <button class="icon-btn close-search" aria-label="Fechar busca">x</button>
+      <p class="eyebrow">Buscar mentoria</p>
+      <h3>Encontre o que precisa</h3>
+      <div class="search-field">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-1.06 1.06l.27.28v.79l5 4.99L20.49 19zM6.5 10a3.5 3.5 0 1 1 7 0a3.5 3.5 0 0 1-7 0z"/></svg>
+        <input id="searchInput" type="search" placeholder="Buscar por titulo, categoria ou palavra-chave" autocomplete="off" />
+      </div>
+      <div id="results" class="results">
+        <p class="muted">Digite para encontrar rapidamente.</p>
+      </div>
+    </div>
+  </div>
+
   <footer>
     <div class="footer-inner">
       <div class="footer-brand">
@@ -125,7 +139,7 @@
       </div>
       <div class="footer-text">
         <div class="footer-sep" aria-hidden="true"></div>
-        <span>Todos os direitos reservados © 2025</span>
+        <span>Todos os direitos reservados - 2025</span>
       </div>
       <div class="footer-links">
         <a href="https://wa.me/5524992585486" target="_blank" rel="noreferrer">
@@ -141,26 +155,17 @@
   </footer>
 
   <script>
-    const video = document.getElementById('mainVideo');
-    const titleEl = document.querySelector('.watch-title');
-    const cards = Array.from(document.querySelectorAll('.lesson-card'));
-
-    cards.forEach(card => {
-      card.addEventListener('click', () => {
-        cards.forEach(c => c.classList.remove('active'));
-        card.classList.add('active');
-        const src = card.dataset.src;
-        const poster = card.dataset.poster;
-        const title = card.dataset.title;
-        if (video) {
-          video.pause();
-          video.setAttribute('poster', poster || '');
-          video.querySelector('source').setAttribute('src', src);
-          video.load();
-        }
-        if (titleEl) titleEl.textContent = title;
-      });
-    });
+    window.FIREBASE_CONFIG = {
+      apiKey: "SUA_API_KEY",
+      authDomain: "SEU_AUTH_DOMAIN",
+      projectId: "SEU_PROJECT_ID",
+      storageBucket: "SEU_STORAGE_BUCKET",
+      messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+      appId: "SEU_APP_ID"
+    };
   </script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="scripts.js"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -61,17 +61,33 @@
         </div>
       </div>
     </section>
+
   </main>
+
+  <div class="search-modal" id="searchModal" hidden>
+    <div class="modal-surface">
+      <button class="icon-btn close-search" aria-label="Fechar busca">x</button>
+      <p class="eyebrow">Buscar mentoria</p>
+      <h3>Encontre o que precisa</h3>
+      <div class="search-field">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-1.06 1.06l.27.28v.79l5 4.99L20.49 19zM6.5 10a3.5 3.5 0 1 1 7 0a3.5 3.5 0 0 1-7 0z"/></svg>
+        <input id="searchInput" type="search" placeholder="Buscar por titulo, categoria ou palavra-chave" autocomplete="off" />
+      </div>
+      <div id="results" class="results">
+        <p class="muted">Digite para encontrar rapidamente.</p>
+      </div>
+    </div>
+  </div>
 
   <footer>
     <div class="footer-inner">
       <div class="footer-brand">
-        <img src="logo.jpg" alt="Joao Porto">
-        <span>João Porto</span>
+        <img src="img/logo.jpg" alt="Joao Porto">
+        <span>Joao Porto</span>
       </div>
       <div class="footer-text">
         <div class="footer-sep" aria-hidden="true"></div>
-        <span>Todos os direitos reservados © 2025</span>
+        <span>Todos os direitos reservados - 2025</span>
       </div>
       <div class="footer-links">
         <a href="https://wa.me/5524992585486" target="_blank" rel="noreferrer">
