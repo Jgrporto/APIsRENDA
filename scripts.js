@@ -77,6 +77,36 @@ function findAllowed(phone) {
   return ALLOWED_USERS.find(u => u.phone === phone) || null;
 }
 
+function canUseFirebase() {
+  return window.firebase && window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey && !String(window.FIREBASE_CONFIG.apiKey).startsWith('COLOQUE');
+}
+
+function getDb() {
+  if (!canUseFirebase()) return null;
+  if (!firebase.apps.length) {
+    firebase.initializeApp(window.FIREBASE_CONFIG);
+  }
+  return firebase.firestore();
+}
+
+async function persistUserProfile(user) {
+  const db = getDb();
+  if (!db) return false;
+  try {
+    await db.collection('users').doc(user.phone).set({
+      phone: user.phone,
+      name: user.name,
+      category: user.category,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true });
+    return true;
+  } catch (err) {
+    console.error('Falha ao salvar usuario', err);
+    return false;
+  }
+}
+
 (function gatekeeping() {
   const isLoginPage = document.body.classList.contains('page-login') || document.body.dataset.noGate === 'true';
   if (isLoginPage) return;
@@ -247,7 +277,7 @@ if (document.body.classList.contains('page-login')) {
     window.location.replace('index.html');
   }
   if (loginForm) {
-    loginForm.addEventListener('submit', (e) => {
+    loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = loginForm.loginName?.value?.trim();
       const phoneRaw = loginForm.loginPhone?.value?.trim();
@@ -261,7 +291,13 @@ if (document.body.classList.contains('page-login')) {
         if (authStatus) authStatus.textContent = 'Telefone nao autorizado.';
         return;
       }
-      saveUser({ name, phone, category: allowed.category });
+      const user = { name, phone, category: allowed.category };
+      const saved = await persistUserProfile(user);
+      if (!saved) {
+        if (authStatus) authStatus.textContent = 'Configure o FIREBASE_CONFIG para salvar.';
+        return;
+      }
+      saveUser(user);
       if (authStatus) authStatus.textContent = 'Autorizado! Redirecionando...';
       window.location.replace('index.html');
     });
@@ -281,18 +317,6 @@ if (document.body.classList.contains('page-watch')) {
   let currentUser = loadUser();
   let currentVideoId = 'captacao-clientes';
   let likedState = false;
-
-  function canUseFirebase() {
-    return window.firebase && window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey && !String(window.FIREBASE_CONFIG.apiKey).startsWith('COLOQUE');
-  }
-
-  function getDb() {
-    if (!canUseFirebase()) return null;
-    if (!firebase.apps.length) {
-      firebase.initializeApp(window.FIREBASE_CONFIG);
-    }
-    return firebase.firestore();
-  }
 
   function updateLikeUI(state) {
     likedState = state;
