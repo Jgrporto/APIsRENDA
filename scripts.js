@@ -15,6 +15,7 @@ const cards = Array.from(document.querySelectorAll('.mentoria-card')).map(card =
 }));
 
 function toggleModal(show) {
+  if (!searchModal || !searchInput) return;
   searchModal.setAttribute('aria-hidden', show ? 'false' : 'true');
   searchModal.hidden = !show;
   document.body.style.overflow = show ? 'hidden' : '';
@@ -28,6 +29,7 @@ function toggleModal(show) {
 }
 
 function toggleDrawer(show) {
+  if (!drawer) return;
   drawer.setAttribute('aria-hidden', show ? 'false' : 'true');
   drawer.hidden = !show;
   document.body.style.overflow = show ? 'hidden' : '';
@@ -38,6 +40,7 @@ function clearHighlights() {
 }
 
 function renderResults(term) {
+  if (!results) return;
   const query = term.trim().toLowerCase();
   clearHighlights();
 
@@ -80,17 +83,22 @@ function renderResults(term) {
   });
 }
 
-searchBtn.addEventListener('click', () => toggleModal(true));
-closeSearchBtn.addEventListener('click', () => toggleModal(false));
-searchModal.addEventListener('click', (e) => { if (e.target === searchModal) toggleModal(false); });
-searchInput.addEventListener('input', (e) => renderResults(e.target.value));
+if (searchBtn && searchModal && searchInput && results) {
+  searchBtn.addEventListener('click', () => toggleModal(true));
+  if (closeSearchBtn) closeSearchBtn.addEventListener('click', () => toggleModal(false));
+  searchModal.addEventListener('click', (e) => { if (e.target === searchModal) toggleModal(false); });
+  searchInput.addEventListener('input', (e) => renderResults(e.target.value));
+} else if (searchBtn) {
+  searchBtn.addEventListener('click', () => { window.location.href = 'Mentoria.html'; });
+}
 
-burgerBtn.addEventListener('click', () => toggleDrawer(true));
-closeDrawerBtn.addEventListener('click', () => toggleDrawer(false));
-drawer.addEventListener('click', (e) => { if (e.target === drawer) toggleDrawer(false); });
-drawer.querySelectorAll('a').forEach(link => link.addEventListener('click', () => toggleDrawer(false)));
+if (burgerBtn && drawer) {
+  burgerBtn.addEventListener('click', () => toggleDrawer(true));
+  if (closeDrawerBtn) closeDrawerBtn.addEventListener('click', () => toggleDrawer(false));
+  drawer.addEventListener('click', (e) => { if (e.target === drawer) toggleDrawer(false); });
+  drawer.querySelectorAll('a').forEach(link => link.addEventListener('click', () => toggleDrawer(false)));
+}
 
-// Smooth scroll for nav links
 Array.from(document.querySelectorAll('a[href^="#"]')).forEach(link => {
   link.addEventListener('click', (e) => {
     const targetId = link.getAttribute('href').slice(1);
@@ -101,3 +109,9 @@ Array.from(document.querySelectorAll('a[href^="#"]')).forEach(link => {
     }
   });
 });
+
+if (document.body.classList.contains('page-mentoria')) {
+  window.addEventListener('load', () => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  });
+}
