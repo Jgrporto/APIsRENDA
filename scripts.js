@@ -61,20 +61,13 @@ async function apiFetch(path, { method = 'GET', body, token } = {}) {
   return data || {};
 }
 
-async function loginRequest(name, phone) {
-  return apiFetch('/api/login', {
-    method: 'POST',
-    body: { name, phone },
-  });
+// Front-only fallback: gera um token local ficticio (sem backend).
+function createLocalSession(name, phone) {
+  return {
+    user: { name, phone, category: 'local' },
+    token: 'local-session-token',
+  };
 }
-
-(function gatekeeping() {
-  const isLoginPage = document.body.classList.contains('page-login') || document.body.dataset.noGate === 'true';
-  if (isLoginPage) return;
-  if (!isLogged()) {
-    window.location.replace('login.html');
-  }
-})();
 
 const searchBtn = document.querySelector('.search-btn');
 const searchModal = document.getElementById('searchModal');
@@ -230,87 +223,13 @@ if (document.body.classList.contains('page-mentoria')) {
   });
 }
 
-// Login page logic (login.html)
-if (document.body.classList.contains('page-login')) {
-  const loginForm = document.getElementById('loginForm');
-  const authStatus = document.getElementById('authStatus');
-  if (isLogged()) {
-    window.location.replace('index.html');
-  }
-  if (loginForm) {
-    loginForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const name = loginForm.loginName?.value?.trim();
-      const phoneRaw = loginForm.loginPhone?.value?.trim();
-      const phone = sanitizePhone(phoneRaw);
-      if (!name || !phone) {
-        if (authStatus) authStatus.textContent = 'Preencha nome e telefone.';
-        return;
-      }
-      try {
-        const { user, token } = await loginRequest(name, phone);
-        if (!token || !user) {
-          if (authStatus) authStatus.textContent = 'Falha ao gerar token de acesso.';
-          return;
-        }
-        saveUser({ ...user, token });
-        if (authStatus) authStatus.textContent = 'Autorizado! Redirecionando...';
-        window.location.replace('index.html');
-      } catch (err) {
-        if (authStatus) authStatus.textContent = err?.message || 'Falha ao entrar.';
-      }
-    });
-  }
-}
-
-// Watch page logic
+// Watch page logic (simplificado, sem login/likes/comentarios)
 if (document.body.classList.contains('page-watch')) {
   const mainVideo = document.getElementById('mainVideo');
   const watchTitle = document.querySelector('.watch-title');
-  const likeBtn = document.getElementById('likeBtn');
-  const commentForm = document.getElementById('commentForm');
-  const commentInput = document.getElementById('commentInput');
-  const commentStatus = document.getElementById('commentStatus');
   const lessonCards = Array.from(document.querySelectorAll('.lesson-card'));
 
-  let currentUser = loadUser();
-  let currentVideoId = 'captacao-clientes';
-  let likedState = false;
-
-  function updateLikeUI(state) {
-    likedState = state;
-    if (likeBtn) {
-      likeBtn.setAttribute('aria-pressed', state ? 'true' : 'false');
-      likeBtn.classList.toggle('active', state);
-    }
-  }
-
-  function setLikeStored(videoId, state) {
-    localStorage.setItem(`${STORAGE_LIKE_PREFIX}${videoId}`, state ? '1' : '0');
-  }
-
-  function getLikeStored(videoId) {
-    return localStorage.getItem(`${STORAGE_LIKE_PREFIX}${videoId}`) === '1';
-  }
-
-  function setAuthMessage(msg) {
-    if (commentStatus) commentStatus.textContent = msg;
-  }
-
-  function ensureLogged(actionMessage) {
-    currentUser = loadUser();
-    if (!currentUser || !currentUser.token) {
-      setAuthMessage(actionMessage || 'Faca login para continuar.');
-      window.location.replace('login.html');
-      return false;
-    }
-    return true;
-  }
-
-  function enableActions(enabled) {
-    if (likeBtn) likeBtn.disabled = !enabled;
-    if (commentInput) commentInput.disabled = !enabled;
-  }
+  let currentVideoId = 'apresentacao-imersao';
 
   function handleLessonClick(card) {
     const available = card.dataset.available !== 'false';
@@ -318,22 +237,16 @@ if (document.body.classList.contains('page-watch')) {
     lessonCards.forEach(c => c.classList.remove('active'));
     card.classList.add('active');
     const src = card.dataset.src;
-    const poster = card.dataset.poster;
     const title = card.dataset.title || 'Video';
     const id = card.dataset.id || title.toLowerCase().replace(/\s+/g, '-');
     currentVideoId = id;
     if (mainVideo && src) {
-      mainVideo.pause();
-      const sourceEl = mainVideo.querySelector('source');
-      if (sourceEl) sourceEl.setAttribute('src', src);
-      if (poster) mainVideo.setAttribute('poster', poster);
-      mainVideo.load();
+      mainVideo.setAttribute('src', src);
     }
     if (watchTitle) {
       watchTitle.textContent = title;
       watchTitle.dataset.videoId = id;
     }
-    updateLikeUI(getLikeStored(id));
   }
 
   function initLessons() {
@@ -350,82 +263,5 @@ if (document.body.classList.contains('page-watch')) {
     });
   }
 
-  async function persistLike() {
-    if (!currentUser || !currentUser.token) {
-      setAuthMessage('Sessao expirada. Faca login novamente.');
-      return;
-    }
-    try {
-      await apiFetch('/api/likes', {
-        method: 'POST',
-        body: {
-          videoId: currentVideoId,
-          liked: likedState,
-        },
-        token: currentUser.token,
-      });
-      setAuthMessage('Like registrado.');
-    } catch (err) {
-      console.error(err);
-      setAuthMessage(err?.message || 'Falha ao salvar like.');
-    }
-  }
-
-  async function persistComment(text) {
-    if (!currentUser || !currentUser.token) {
-      if (commentStatus) commentStatus.textContent = 'Sessao expirada. Faca login novamente.';
-      return;
-    }
-    try {
-      await apiFetch('/api/comments', {
-        method: 'POST',
-        body: {
-          videoId: currentVideoId,
-          text,
-        },
-        token: currentUser.token,
-      });
-      if (commentStatus) commentStatus.textContent = 'Comentario enviado!';
-    } catch (err) {
-      console.error(err);
-      if (commentStatus) commentStatus.textContent = err?.message || 'Erro ao enviar comentario.';
-    }
-  }
-
-  function updateAuthUI() {
-    currentUser = loadUser();
-    const logged = Boolean(currentUser && currentUser.token);
-    enableActions(logged);
-    if (logged) {
-      updateLikeUI(getLikeStored(currentVideoId));
-    }
-  }
-
-  if (likeBtn) {
-    likeBtn.addEventListener('click', async () => {
-      if (!ensureLogged('Faca login para registrar like.')) return;
-      likedState = !likedState;
-      updateLikeUI(likedState);
-      setLikeStored(currentVideoId, likedState);
-      await persistLike();
-    });
-  }
-
-  if (commentForm) {
-    commentForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!ensureLogged('Faca login para comentar.')) return;
-      const text = commentInput?.value?.trim();
-      if (!text) {
-        if (commentStatus) commentStatus.textContent = 'Digite um comentario.';
-        return;
-      }
-      await persistComment(text);
-      if (commentInput) commentInput.value = '';
-      setTimeout(() => { if (commentStatus) commentStatus.textContent = ''; }, 3000);
-    });
-  }
-
   initLessons();
-  updateAuthUI();
 }
