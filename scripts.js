@@ -1,51 +1,6 @@
-const ALLOWED_USERS = [
-  { phone: '556291817556', category: 'imersao1' },
-  { phone: '5527988159986', category: 'imersao1' },
-  { phone: '5521965277249', category: 'imersao1' },
-  { phone: '5511957868500', category: 'imersao1' },
-  { phone: '558597492473', category: 'imersao1' },
-  { phone: '555481349932', category: 'imersao1' },
-  { phone: '557588691415', category: 'imersao1' },
-  { phone: '558197025272', category: 'imersao1' },
-  { phone: '556299865952', category: 'imersao1' },
-  { phone: '553185936438', category: 'imersao1' },
-  { phone: '557192402099', category: 'imersao1' },
-  { phone: '558198286078', category: 'imersao1' },
-  { phone: '5511984046177', category: 'imersao1' },
-  { phone: '553197133255', category: 'imersao1' },
-  { phone: '555183412500', category: 'imersao1' },
-  { phone: '557183192338', category: 'imersao1' },
-  { phone: '553171526961', category: 'imersao1' },
-  { phone: '5524981824259', category: 'imersao1' },
-  { phone: '554197656857', category: 'imersao1' },
-  { phone: '553299544923', category: 'imersao1' },
-  { phone: '555198553204', category: 'imersao1' },
-  { phone: '5519971463920', category: 'imersao1' },
-  { phone: '553194371680', category: 'imersao1' },
-  { phone: '556993186232', category: 'imersao1' },
-  { phone: '553191867157', category: 'imersao1' },
-  { phone: '555592241771', category: 'imersao1' },
-  { phone: '5524992585486', category: 'imersao1' },
-  { phone: '5521968986505', category: 'imersao1' },
-  { phone: '5511984662320', category: 'imersao1' },
-  { phone: '5512996052271', category: 'imersao1' },
-  { phone: '558393515764', category: 'imersao1' },
-  { phone: '554688323216', category: 'imersao1' },
-  { phone: '557192979443', category: 'imersao1' },
-  { phone: '557799306262', category: 'imersao1' },
-  { phone: '5521995964831', category: 'imersao1' },
-  { phone: '558898058046', category: 'imersao1' },
-  { phone: '5511961458686', category: 'imersao1' },
-  { phone: '5511917477678', category: 'imersao1' },
-  { phone: '553199138178', category: 'imersao1' },
-  { phone: '5524992910708', category: 'imersao1' },
-  { phone: '5524992478084', category: 'imersao1' },
-  { phone: '5524999157259', category: 'imersao1' },
-  { phone: '5521959520375', category: 'imersao1' }
-];
-
 const STORAGE_USER = 'rc_user';
 const STORAGE_LIKE_PREFIX = 'rc_like_';
+const API_BASE = '';
 
 function sanitizePhone(value) {
   return (value || '').replace(/\D/g, '');
@@ -70,41 +25,47 @@ function clearUser() {
 }
 
 function isLogged() {
-  return Boolean(loadUser());
+  const user = loadUser();
+  return Boolean(user && user.token);
 }
 
-function findAllowed(phone) {
-  return ALLOWED_USERS.find(u => u.phone === phone) || null;
+function apiUrl(path) {
+  return `${API_BASE}${path}`;
 }
 
-function canUseFirebase() {
-  return window.firebase && window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey && !String(window.FIREBASE_CONFIG.apiKey).startsWith('COLOQUE');
-}
-
-function getDb() {
-  if (!canUseFirebase()) return null;
-  if (!firebase.apps.length) {
-    firebase.initializeApp(window.FIREBASE_CONFIG);
+async function apiFetch(path, { method = 'GET', body, token } = {}) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
   }
-  return firebase.firestore();
-}
-
-async function persistUserProfile(user) {
-  const db = getDb();
-  if (!db) return false;
+  let res;
   try {
-    await db.collection('users').doc(user.phone).set({
-      phone: user.phone,
-      name: user.name,
-      category: user.category,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    }, { merge: true });
-    return true;
+    res = await fetch(apiUrl(path), {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+    });
   } catch (err) {
-    console.error('Falha ao salvar usuario', err);
-    return false;
+    throw new Error('Nao foi possivel conectar ao servidor.');
   }
+  let data = null;
+  try {
+    data = await res.json();
+  } catch (_) {
+    data = null;
+  }
+  if (!res.ok) {
+    const message = data?.error || 'Erro ao comunicar com o servidor.';
+    throw new Error(message);
+  }
+  return data || {};
+}
+
+async function loginRequest(name, phone) {
+  return apiFetch('/api/login', {
+    method: 'POST',
+    body: { name, phone },
+  });
 }
 
 (function gatekeeping() {
@@ -286,20 +247,18 @@ if (document.body.classList.contains('page-login')) {
         if (authStatus) authStatus.textContent = 'Preencha nome e telefone.';
         return;
       }
-      const allowed = findAllowed(phone);
-      if (!allowed) {
-        if (authStatus) authStatus.textContent = 'Telefone nao autorizado.';
-        return;
+      try {
+        const { user, token } = await loginRequest(name, phone);
+        if (!token || !user) {
+          if (authStatus) authStatus.textContent = 'Falha ao gerar token de acesso.';
+          return;
+        }
+        saveUser({ ...user, token });
+        if (authStatus) authStatus.textContent = 'Autorizado! Redirecionando...';
+        window.location.replace('index.html');
+      } catch (err) {
+        if (authStatus) authStatus.textContent = err?.message || 'Falha ao entrar.';
       }
-      const user = { name, phone, category: allowed.category };
-      const saved = await persistUserProfile(user);
-      if (!saved) {
-        if (authStatus) authStatus.textContent = 'Configure o FIREBASE_CONFIG para salvar.';
-        return;
-      }
-      saveUser(user);
-      if (authStatus) authStatus.textContent = 'Autorizado! Redirecionando...';
-      window.location.replace('index.html');
     });
   }
 }
@@ -340,7 +299,7 @@ if (document.body.classList.contains('page-watch')) {
 
   function ensureLogged(actionMessage) {
     currentUser = loadUser();
-    if (!currentUser) {
+    if (!currentUser || !currentUser.token) {
       setAuthMessage(actionMessage || 'Faca login para continuar.');
       window.location.replace('login.html');
       return false;
@@ -392,54 +351,50 @@ if (document.body.classList.contains('page-watch')) {
   }
 
   async function persistLike() {
-    if (!currentUser) return;
-    const db = getDb();
-    if (!db) {
-      setAuthMessage('Preencha FIREBASE_CONFIG para salvar o like.');
+    if (!currentUser || !currentUser.token) {
+      setAuthMessage('Sessao expirada. Faca login novamente.');
       return;
     }
     try {
-      await db.collection('likes').doc(`${currentVideoId}-${currentUser.phone}`).set({
-        videoId: currentVideoId,
-        userName: currentUser.name,
-        phone: currentUser.phone,
-        category: currentUser.category,
-        liked: likedState,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      }, { merge: true });
+      await apiFetch('/api/likes', {
+        method: 'POST',
+        body: {
+          videoId: currentVideoId,
+          liked: likedState,
+        },
+        token: currentUser.token,
+      });
       setAuthMessage('Like registrado.');
     } catch (err) {
       console.error(err);
-      setAuthMessage('Falha ao salvar like.');
+      setAuthMessage(err?.message || 'Falha ao salvar like.');
     }
   }
 
   async function persistComment(text) {
-    if (!currentUser) return;
-    const db = getDb();
-    if (!db) {
-      if (commentStatus) commentStatus.textContent = 'Preencha FIREBASE_CONFIG para salvar comentarios.';
+    if (!currentUser || !currentUser.token) {
+      if (commentStatus) commentStatus.textContent = 'Sessao expirada. Faca login novamente.';
       return;
     }
     try {
-      await db.collection('comments').add({
-        videoId: currentVideoId,
-        userName: currentUser.name,
-        phone: currentUser.phone,
-        category: currentUser.category,
-        text,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      await apiFetch('/api/comments', {
+        method: 'POST',
+        body: {
+          videoId: currentVideoId,
+          text,
+        },
+        token: currentUser.token,
       });
       if (commentStatus) commentStatus.textContent = 'Comentario enviado!';
     } catch (err) {
       console.error(err);
-      if (commentStatus) commentStatus.textContent = 'Erro ao enviar comentario.';
+      if (commentStatus) commentStatus.textContent = err?.message || 'Erro ao enviar comentario.';
     }
   }
 
   function updateAuthUI() {
     currentUser = loadUser();
-    const logged = Boolean(currentUser);
+    const logged = Boolean(currentUser && currentUser.token);
     enableActions(logged);
     if (logged) {
       updateLikeUI(getLikeStored(currentVideoId));
