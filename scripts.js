@@ -190,12 +190,12 @@ const drawer = document.getElementById('drawer');
 const closeDrawerBtn = document.querySelector('.close-drawer');
 
 const FALLBACK_MENTORIAS = [
-  { id: 'captacao-clientes', title: 'Captacao de Clientes', category: 'Trafego pago', keywords: 'ads conversao audiencia', available: true, href: 'watch.html?video=captacao-clientes' },
-  { id: 'creatives', title: 'Creatives que convertem', category: 'Trafego pago', keywords: 'criativos criativo teste video', available: false },
-  { id: 'metricas', title: 'Metricas e escala', category: 'Trafego pago', keywords: 'cpa roas ltv dados', available: false },
-  { id: 'roteiro', title: 'Roteiro de qualificacao', category: 'Processo de vendas', keywords: 'lead scoring roteiro atendimento', available: false },
-  { id: 'follow-up', title: 'Follow-up que fecha', category: 'Processo de vendas', keywords: 'follow up followup pipeline', available: false },
-  { id: 'pitch', title: 'Pitch com provas', category: 'Processo de vendas', keywords: 'pitch proposta demo provas', available: false },
+  { id: 'apresentacao-imersao', title: 'Apresentacao da Imersao - Como eu comecei', category: 'Imersao Renda com TV', keywords: 'apresentacao inicio jornada', available: true, href: 'watch.html?video=apresentacao-imersao' },
+  { id: 'captacao-clientes', title: 'Aula 02 - Captacao de Clientes', category: 'Imersao Renda com TV', keywords: 'captacao clientes lead', available: true, href: 'watch.html?video=captacao-clientes' },
+  { id: 'trafego-pago-subnicho', title: 'Aula 03 - Trafego pago para subnicho', category: 'Imersao Renda com TV', keywords: 'trafego pago subnicho', available: true, href: 'watch.html?video=trafego-pago-subnicho' },
+  { id: 'analise-conta-anuncios', title: 'Aula 04 - Analise da conta de anuncios', category: 'Imersao Renda com TV', keywords: 'analise conta anuncios', available: true, href: 'watch.html?video=analise-conta-anuncios' },
+  { id: 'trafego-whatsapp', title: 'Aula 05 - Porque o trafego para WhatsApp', category: 'Imersao Renda com TV', keywords: 'trafego whatsapp', available: true, href: 'watch.html?video=trafego-whatsapp' },
+  { id: 'finalizacao-perguntas-respostas', title: 'Finalizacao - Perguntas e respostas', category: 'Imersao Renda com TV', keywords: 'finalizacao perguntas respostas', available: true, href: 'watch.html?video=finalizacao-perguntas-respostas' },
 ];
 
 function collectCardData() {
