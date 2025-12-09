@@ -162,22 +162,22 @@ function recordLoginEvent(name, phone, category) {
   const webhook = window?.SHEETS_WEBHOOK_URL;
   if (!webhook) {
     console.warn('Webhook do Sheets nao configurado.');
-    return;
+    return Promise.resolve({ skipped: true });
   }
   const payload = { name, phone, category, ts: new Date().toISOString() };
-  fetch(webhook, {
+  console.info('Enviando login para Sheets', { webhook, payload });
+  // Usa no-cors e sem headers customizados para evitar preflight OPTIONS (Apps Script retorna 405 em OPTIONS).
+  return fetch(webhook, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
-    mode: 'cors',
-  })
-    .then((res) => {
-      console.info('Webhook Sheets status', res.status);
-      // Apps Script retorna 200/302. Ignora corpo para nao travar por CORS.
-    })
-    .catch((err) => {
-      console.error('Falha ao registrar no Sheets', err);
-    });
+    mode: 'no-cors',
+  }).then((res) => {
+    console.info('Webhook Sheets enviado (resposta opaca por no-cors)', res);
+    return res;
+  }).catch((err) => {
+    console.error('Falha ao registrar no Sheets', err);
+    throw err;
+  });
 }
 
 const searchBtn = document.querySelector('.search-btn');
@@ -415,9 +415,18 @@ function initLoginForm() {
     const session = createLocalSession(name, phone);
     saveUser(session);
     saveKnownName(session.user.phone, name);
-    recordLoginEvent(name, session.user.phone, allowed.category);
-    if (statusEl) statusEl.textContent = 'Acesso liberado! Redirecionando...';
-    setTimeout(() => { window.location.href = 'home.html'; }, 300);
+    if (statusEl) statusEl.textContent = 'Acesso liberado! Registrando na planilha...';
+
+    recordLoginEvent(name, session.user.phone, allowed.category)
+      .then(() => {
+        if (statusEl) statusEl.textContent = 'Acesso liberado! Redirecionando...';
+      })
+      .catch(() => {
+        if (statusEl) statusEl.textContent = 'Acesso liberado, mas nao registrou na planilha. Veja console.';
+      })
+      .finally(() => {
+        setTimeout(() => { window.location.href = 'home.html'; }, 300);
+      });
   });
 }
 
