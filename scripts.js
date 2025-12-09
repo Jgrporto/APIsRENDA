@@ -2,54 +2,55 @@ const STORAGE_USER = 'rc_user';
 const STORAGE_LIKE_PREFIX = 'rc_like_';
 const API_BASE = '';
 const OWNER_WHATSAPP = '5524992585486';
+const STORAGE_NAME_MAP = 'rc_name_map';
 
-// Telefones autorizados (espelhado do backend).
-const AUTHORIZED_PHONES = [
-  '556291817556',
-  '5527988159986',
-  '5521965277249',
-  '5511957868500',
-  '558597492473',
-  '555481349932',
-  '557588691415',
-  '558197025272',
-  '556299865952',
-  '553185936438',
-  '557192402099',
-  '558198286078',
-  '5511984046177',
-  '553197133255',
-  '555183412500',
-  '557183192338',
-  '553171526961',
-  '5524981824259',
-  '554197656857',
-  '553299544923',
-  '555198553204',
-  '5519971463920',
-  '553194371680',
-  '556993186232',
-  '553191867157',
-  '555592241771',
-  '5524992585486',
-  '5521968986505',
-  '5511984662320',
-  '5512996052271',
-  '558393515764',
-  '554688323216',
-  '557192979443',
-  '557799306262',
-  '5521995964831',
-  '558898058046',
-  '5511961458686',
-  '5511917477678',
-  '553199138178',
-  '5524992910708',
-  '5524992478084',
-  '5524999157259',
-  '5521959520375',
+// Telefones autorizados com categoria (imersao1).
+const AUTHORIZED_USERS = [
+  { phone: '556291817556', category: 'imersao1' },
+  { phone: '5527988159986', category: 'imersao1' },
+  { phone: '5521965277249', category: 'imersao1' },
+  { phone: '5511957868500', category: 'imersao1' },
+  { phone: '558597492473', category: 'imersao1' },
+  { phone: '555481349932', category: 'imersao1' },
+  { phone: '557588691415', category: 'imersao1' },
+  { phone: '558197025272', category: 'imersao1' },
+  { phone: '556299865952', category: 'imersao1' },
+  { phone: '553185936438', category: 'imersao1' },
+  { phone: '557192402099', category: 'imersao1' },
+  { phone: '558198286078', category: 'imersao1' },
+  { phone: '5511984046177', category: 'imersao1' },
+  { phone: '553197133255', category: 'imersao1' },
+  { phone: '555183412500', category: 'imersao1' },
+  { phone: '557183192338', category: 'imersao1' },
+  { phone: '553171526961', category: 'imersao1' },
+  { phone: '5524981824259', category: 'imersao1' },
+  { phone: '554197656857', category: 'imersao1' },
+  { phone: '553299544923', category: 'imersao1' },
+  { phone: '555198553204', category: 'imersao1' },
+  { phone: '5519971463920', category: 'imersao1' },
+  { phone: '553194371680', category: 'imersao1' },
+  { phone: '556993186232', category: 'imersao1' },
+  { phone: '553191867157', category: 'imersao1' },
+  { phone: '555592241771', category: 'imersao1' },
+  { phone: '5524992585486', category: 'imersao1' },
+  { phone: '5521968986505', category: 'imersao1' },
+  { phone: '5511984662320', category: 'imersao1' },
+  { phone: '5512996052271', category: 'imersao1' },
+  { phone: '558393515764', category: 'imersao1' },
+  { phone: '554688323216', category: 'imersao1' },
+  { phone: '557192979443', category: 'imersao1' },
+  { phone: '557799306262', category: 'imersao1' },
+  { phone: '5521995964831', category: 'imersao1' },
+  { phone: '558898058046', category: 'imersao1' },
+  { phone: '5511961458686', category: 'imersao1' },
+  { phone: '5511917477678', category: 'imersao1' },
+  { phone: '553199138178', category: 'imersao1' },
+  { phone: '5524992910708', category: 'imersao1' },
+  { phone: '5524992478084', category: 'imersao1' },
+  { phone: '5524999157259', category: 'imersao1' },
+  { phone: '5521959520375', category: 'imersao1' },
 ];
-const AUTHORIZED_SET = new Set(AUTHORIZED_PHONES);
+const AUTHORIZED_SET = new Set(AUTHORIZED_USERS.map(u => u.phone));
 
 function sanitizePhone(value) {
   return (value || '').replace(/\D/g, '');
@@ -61,9 +62,9 @@ function normalizePhone(value) {
   return digits;
 }
 
-function isPhoneAuthorized(value) {
+function findAuthorizedUser(value) {
   const normalized = normalizePhone(value);
-  return AUTHORIZED_SET.has(normalized);
+  return AUTHORIZED_USERS.find(u => u.phone === normalized) || null;
 }
 
 function loadUser() {
@@ -124,8 +125,9 @@ async function apiFetch(path, { method = 'GET', body, token } = {}) {
 // Front-only fallback: gera um token local ficticio (sem backend).
 function createLocalSession(name, phone) {
   const normalized = normalizePhone(phone);
+  const allowed = findAuthorizedUser(normalized);
   return {
-    user: { name, phone: normalized, category: 'local' },
+    user: { name, phone: normalized, category: allowed?.category || 'local' },
     token: `local-session-token-${normalized}-${Date.now()}`,
   };
 }
@@ -136,6 +138,36 @@ function enforceAuthGate() {
   if (!isLogged()) {
     window.location.href = 'index.html';
   }
+}
+
+function loadNameMap() {
+  try {
+    const raw = localStorage.getItem(STORAGE_NAME_MAP);
+    return raw ? JSON.parse(raw) : {};
+  } catch (err) {
+    console.warn('Falha ao carregar nomes salvos', err);
+    return {};
+  }
+}
+
+function saveKnownName(phone, name) {
+  const map = loadNameMap();
+  map[phone] = name;
+  localStorage.setItem(STORAGE_NAME_MAP, JSON.stringify(map));
+}
+
+// Envio opcional para Google Sheets via webhook (definir SHEETS_WEBHOOK_URL no window).
+function recordLoginEvent(name, phone, category) {
+  saveKnownName(phone, name);
+  const webhook = window?.SHEETS_WEBHOOK_URL;
+  if (!webhook) return;
+  const payload = { name, phone, category, ts: new Date().toISOString() };
+  fetch(webhook, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+    mode: 'no-cors',
+  }).catch(() => {});
 }
 
 const searchBtn = document.querySelector('.search-btn');
@@ -363,7 +395,8 @@ function initLoginForm() {
       return;
     }
 
-    if (!isPhoneAuthorized(phone)) {
+    const allowed = findAuthorizedUser(phone);
+    if (!allowed) {
       if (statusEl) statusEl.textContent = 'Telefone nao autorizado. Fale com o dono no WhatsApp.';
       if (contactLink) contactLink.focus();
       return;
@@ -371,6 +404,8 @@ function initLoginForm() {
 
     const session = createLocalSession(name, phone);
     saveUser(session);
+    saveKnownName(session.user.phone, name);
+    recordLoginEvent(name, session.user.phone, allowed.category);
     if (statusEl) statusEl.textContent = 'Acesso liberado! Redirecionando...';
     setTimeout(() => { window.location.href = 'home.html'; }, 300);
   });
