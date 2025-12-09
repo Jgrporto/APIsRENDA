@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Assistir - Renda com TV</title>
+  <title>Renda com TV - Mentoria</title>
   <link rel="stylesheet" href="styles.css">
 </head>
-<body class="page-watch">
+<body class="page-home">
   <header class="topbar">
     <div class="brand-group">
       <div class="logo-mark" aria-label="Renda com TV">
         <img src="img/logo.jpg" alt="Renda com TV" class="logo-img">
       </div>
       <nav class="primary-nav" aria-label="Navegacao principal">
-        <a href="home.html#inicio">Inicio</a>
+        <a href="#inicio">Inicio</a>
         <a href="Mentoria.html">Mentoria</a>
       </nav>
     </div>
@@ -31,7 +31,7 @@
     <div class="drawer-content">
       <button class="icon-btn close-drawer" aria-label="Fechar menu">x</button>
       <div class="drawer-links">
-        <a href="home.html#inicio" class="drawer-link">Inicio</a>
+        <a href="#inicio" class="drawer-link">Inicio</a>
         <a href="Mentoria.html" class="drawer-link">Mentorias</a>
       </div>
       <div class="drawer-contacts">
@@ -51,35 +51,17 @@
   </div>
 
   <main>
-    <div class="watch-shell">
-      <section class="watch-left">
-        <a class="watch-back" href="Mentoria.html">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
-          Voltar para mentorias
-        </a>
-        <div class="watch-player">
-          <iframe id="mainVideo" src="https://www.youtube.com/embed/-0RwGxGX3UM?rel=0&modestbranding=1&playsinline=1&origin=https://rendacomtv" title="APRESENTACAO DA IMERSAO - COMO EU COMECEI" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <section id="inicio" class="hero">
+      <div class="hero-card">
+        <div class="hero-logo">Renda com TV</div>
+        <div class="hero-title">RENDA COM TV</div>
+        <div class="hero-cta">
+          <a class="primary-btn" href="Mentoria.html">Clique aqui para acessar agora</a>
+          <p class="hero-support">Seu proximo passo esta aqui!</p>
         </div>
-        <div class="watch-meta">
-          <div class="watch-tag">Imersao</div>
-        </div>
-        <h2 class="watch-title" data-video-id="apresentacao-imersao">APRESENTACAO DA IMERSAO - COMO EU COMECEI</h2>
-      </section>
+      </div>
+    </section>
 
-      <aside class="playlist-panel">
-        <div class="playlist-header">
-          <h3>Trilha de aulas</h3>
-          <p>Selecione para assistir</p>
-        </div>
-        <div class="lesson-card active" data-id="apresentacao-imersao" data-available="true" data-src="https://www.youtube.com/embed/-0RwGxGX3UM?rel=0&modestbranding=1&playsinline=1&origin=https://rendacomtv" data-title="APRESENTACAO DA IMERSAO - COMO EU COMECEI">
-          <div class="lesson-thumb"><img src="img/logo.jpg" alt="APRESENTACAO DA IMERSAO - COMO EU COMECEI"></div>
-          <div class="lesson-body">
-            <h4>APRESENTACAO DA IMERSAO - COMO EU COMECEI</h4>
-            <p>Aula 1</p>
-          </div>
-        </div>
-      </aside>
-    </div>
   </main>
 
   <div class="search-modal" id="searchModal" hidden>

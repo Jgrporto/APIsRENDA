@@ -1,9 +1,69 @@
 const STORAGE_USER = 'rc_user';
 const STORAGE_LIKE_PREFIX = 'rc_like_';
 const API_BASE = '';
+const OWNER_WHATSAPP = '5524992585486';
+
+// Telefones autorizados (espelhado do backend).
+const AUTHORIZED_PHONES = [
+  '556291817556',
+  '5527988159986',
+  '5521965277249',
+  '5511957868500',
+  '558597492473',
+  '555481349932',
+  '557588691415',
+  '558197025272',
+  '556299865952',
+  '553185936438',
+  '557192402099',
+  '558198286078',
+  '5511984046177',
+  '553197133255',
+  '555183412500',
+  '557183192338',
+  '553171526961',
+  '5524981824259',
+  '554197656857',
+  '553299544923',
+  '555198553204',
+  '5519971463920',
+  '553194371680',
+  '556993186232',
+  '553191867157',
+  '555592241771',
+  '5524992585486',
+  '5521968986505',
+  '5511984662320',
+  '5512996052271',
+  '558393515764',
+  '554688323216',
+  '557192979443',
+  '557799306262',
+  '5521995964831',
+  '558898058046',
+  '5511961458686',
+  '5511917477678',
+  '553199138178',
+  '5524992910708',
+  '5524992478084',
+  '5524999157259',
+  '5521959520375',
+];
+const AUTHORIZED_SET = new Set(AUTHORIZED_PHONES);
 
 function sanitizePhone(value) {
   return (value || '').replace(/\D/g, '');
+}
+
+function normalizePhone(value) {
+  const digits = sanitizePhone(value);
+  if (digits.length === 11) return `55${digits}`;
+  return digits;
+}
+
+function isPhoneAuthorized(value) {
+  const normalized = normalizePhone(value);
+  return AUTHORIZED_SET.has(normalized);
 }
 
 function loadUser() {
@@ -63,10 +123,19 @@ async function apiFetch(path, { method = 'GET', body, token } = {}) {
 
 // Front-only fallback: gera um token local ficticio (sem backend).
 function createLocalSession(name, phone) {
+  const normalized = normalizePhone(phone);
   return {
-    user: { name, phone, category: 'local' },
-    token: 'local-session-token',
+    user: { name, phone: normalized, category: 'local' },
+    token: `local-session-token-${normalized}-${Date.now()}`,
   };
+}
+
+function enforceAuthGate() {
+  const body = document.body;
+  if (!body || body.dataset.noGate === 'true') return;
+  if (!isLogged()) {
+    window.location.href = 'index.html';
+  }
 }
 
 const searchBtn = document.querySelector('.search-btn');
@@ -265,3 +334,47 @@ if (document.body.classList.contains('page-watch')) {
 
   initLessons();
 }
+
+function initLoginForm() {
+  const form = document.getElementById('gateForm');
+  if (!form) return;
+
+  const nameInput = document.getElementById('loginName');
+  const phoneInput = document.getElementById('loginPhone');
+  const statusEl = document.getElementById('authStatus');
+  const contactLink = document.getElementById('contactOwner');
+
+  if (contactLink) {
+    contactLink.href = `https://wa.me/${OWNER_WHATSAPP}`;
+  }
+
+  if (isLogged()) {
+    window.location.href = 'home.html';
+    return;
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = (nameInput?.value || '').trim();
+    const phone = phoneInput?.value || '';
+
+    if (!name || !phone) {
+      if (statusEl) statusEl.textContent = 'Informe nome e telefone para continuar.';
+      return;
+    }
+
+    if (!isPhoneAuthorized(phone)) {
+      if (statusEl) statusEl.textContent = 'Telefone nao autorizado. Fale com o dono no WhatsApp.';
+      if (contactLink) contactLink.focus();
+      return;
+    }
+
+    const session = createLocalSession(name, phone);
+    saveUser(session);
+    if (statusEl) statusEl.textContent = 'Acesso liberado! Redirecionando...';
+    setTimeout(() => { window.location.href = 'home.html'; }, 300);
+  });
+}
+
+enforceAuthGate();
+initLoginForm();
