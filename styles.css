@@ -295,19 +295,19 @@ a { color: inherit; text-decoration: none; }
 
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
 }
 
 .mentoria-card {
-  min-height: 220px;
+  min-height: 180px;
   border-radius: 18px;
   border: 1px solid var(--border);
   background:
     radial-gradient(circle at 20% 20%, rgba(141, 158, 145, 0.12), transparent 50%),
     radial-gradient(circle at 80% 0%, rgba(73, 101, 85, 0.16), transparent 40%),
     linear-gradient(145deg, rgba(5, 5, 5, 0.35), rgba(73, 101, 85, 0.18));
-  padding: 20px;
+  padding: 16px;
   display: grid;
   grid-template-rows: auto 1fr;
   align-items: stretch;
