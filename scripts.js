@@ -160,14 +160,24 @@ function saveKnownName(phone, name) {
 function recordLoginEvent(name, phone, category) {
   saveKnownName(phone, name);
   const webhook = window?.SHEETS_WEBHOOK_URL;
-  if (!webhook) return;
+  if (!webhook) {
+    console.warn('Webhook do Sheets nao configurado.');
+    return;
+  }
   const payload = { name, phone, category, ts: new Date().toISOString() };
   fetch(webhook, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
-    mode: 'no-cors',
-  }).catch(() => {});
+    mode: 'cors',
+  })
+    .then((res) => {
+      console.info('Webhook Sheets status', res.status);
+      // Apps Script retorna 200/302. Ignora corpo para nao travar por CORS.
+    })
+    .catch((err) => {
+      console.error('Falha ao registrar no Sheets', err);
+    });
 }
 
 const searchBtn = document.querySelector('.search-btn');
