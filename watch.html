@@ -60,17 +60,41 @@
         </a>
         <div class="watch-player">
           <div class="embed-wrapper" style="padding:56.25% 0 0 0;position:relative;">
-            <iframe id="mainVideo" src="https://www.youtube.com/embed/-0RwGxGX3UM?enablejsapi=1&amp;rel=0&amp;modestbranding=1&amp;controls=0&amp;playsinline=1&amp;iv_load_policy=3" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="AULA-1Apresentacao" allowfullscreen></iframe>
+            <iframe id="mainVideo" src="https://player.vimeo.com/video/1145330898?controls=0&amp;title=0&amp;byline=0&amp;portrait=0&amp;badge=0&amp;autopause=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Aula 01 - Apresentacao da Imersao" allowfullscreen></iframe>
+            <div class="video-click-overlay" id="videoClickOverlay" aria-hidden="true"></div>
+          </div>
+          <div class="video-controls">
+            <div class="progress-row">
+              <input type="range" id="progressRange" min="0" max="1000" value="0" step="1" aria-label="Linha do tempo">
+              <div class="time-readout"><span id="currentTime">0:00</span> / <span id="durationTime">0:00</span></div>
+            </div>
+            <div class="controls-row">
+              <div class="controls-left">
+                <button class="control-btn" id="playPauseBtn" type="button" aria-label="Reproduzir ou pausar">
+                  <span class="icon">⏵</span>
+                </button>
+                <button class="control-btn" id="backBtn" type="button" aria-label="Voltar 10 segundos">
+                  <span class="icon icon-green">⏪</span><span class="label">10s</span>
+                </button>
+                <button class="control-btn" id="forwardBtn" type="button" aria-label="Avancar 10 segundos">
+                  <span class="icon icon-green">⏩</span><span class="label">10s</span>
+                </button>
+              </div>
+              <div class="controls-right">
+                <button class="control-btn" id="muteBtn" type="button" aria-label="Ativar ou desativar som">
+                  <span class="icon icon-green">🔊</span>
+                </button>
+                <button class="control-btn" id="fullscreenBtn" type="button" aria-label="Tela cheia">
+                  <span class="icon">⛶</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
         <div class="watch-meta">
           <div class="watch-tag">Imersao Renda com TV - Dia 1</div>
         </div>
-        <div class="watch-actions">
-          <button class="pill-btn" id="playPauseBtn" type="button">Pausar</button>
-          <button class="pill-btn secondary" id="backBtn" type="button">Voltar 10s</button>
-        </div>
-        <h2 class="watch-title" data-video-id="apresentacao-imersao">Apresentacao da Imersao - Como eu comecei</h2>
+        <h2 class="watch-title" data-video-id="apresentacao-imersao">Aula 01 - Apresentacao da Imersao</h2>
       </section>
 
       <aside class="playlist-panel">
@@ -80,45 +104,45 @@
         </div>
         <div class="playlist-group" data-day="1">
           <h4>Imersao Renda com TV - Dia 1</h4>
-          <div class="lesson-card active" data-id="apresentacao-imersao" data-day="1" data-category="Imersao Renda com TV - Dia 1" data-available="true" data-src="-0RwGxGX3UM" data-title="Apresentacao da Imersao - Como eu comecei">
+          <div class="lesson-card active" data-id="apresentacao-imersao" data-day="1" data-category="Imersao Renda com TV - Dia 1" data-available="true" data-src="1145330898" data-title="Aula 01 - Apresentacao da Imersao">
             <div class="lesson-thumb"><img src="img/Apresentacao.png" alt="Apresentacao da Imersao - Como eu comecei"></div>
             <div class="lesson-body">
-              <h4>Apresentacao da Imersao - Como eu comecei</h4>
+              <h4>Aula 01 - Apresentacao da Imersao</h4>
               <p>Aula 01</p>
             </div>
           </div>
-          <div class="lesson-card" data-id="captacao-clientes" data-day="1" data-category="Imersao Renda com TV - Dia 1" data-available="true" data-src="ONeVDCbRepI" data-title="Aula 02 - Captacao de Clientes">
+          <div class="lesson-card" data-id="captacao-clientes" data-day="1" data-category="Imersao Renda com TV - Dia 1" data-available="true" data-src="1145330946" data-title="Aula 02 - Captacao de Clientes">
             <div class="lesson-thumb"><img src="img/Aula1.png" alt="Aula 02 - Captacao de Clientes"></div>
             <div class="lesson-body">
               <h4>Aula 02 - Captacao de Clientes</h4>
               <p>Aula 02</p>
             </div>
           </div>
-          <div class="lesson-card" data-id="trafego-pago-subnicho" data-day="1" data-category="Imersao Renda com TV - Dia 1" data-available="true" data-src="Yo2kv-WKwXQ" data-title="Aula 03 - Trafego pago para subnicho">
+          <div class="lesson-card" data-id="trafego-pago-subnicho" data-day="1" data-category="Imersao Renda com TV - Dia 1" data-available="true" data-src="1145330993" data-title="Aula 03 - Trafego pago para subnicho">
             <div class="lesson-thumb"><img src="img/Aula1.png" alt="Aula 03 - Trafego pago para subnicho"></div>
             <div class="lesson-body">
               <h4>Aula 03 - Trafego pago para subnicho</h4>
               <p>Aula 03</p>
             </div>
           </div>
-          <div class="lesson-card" data-id="analise-conta-anuncios" data-day="1" data-category="Imersao Renda com TV - Dia 1" data-available="true" data-src="DqVEqSr81bQ" data-title="Aula 04 - Analise da conta de anuncios">
-            <div class="lesson-thumb"><img src="img/Aula1.png" alt="Aula 04 - Analise da conta de anuncios"></div>
+          <div class="lesson-card" data-id="anatomia-anuncio" data-day="1" data-category="Imersao Renda com TV - Dia 1" data-available="true" data-src="1145331097" data-title="Aula 04 - Anatomia de Anuncio">
+            <div class="lesson-thumb"><img src="img/Aula1.png" alt="Aula 04 - Anatomia de Anuncio"></div>
             <div class="lesson-body">
-              <h4>Aula 04 - Analise da conta de anuncios</h4>
+              <h4>Aula 04 - Anatomia de Anuncio</h4>
               <p>Aula 04</p>
             </div>
           </div>
-          <div class="lesson-card" data-id="trafego-whatsapp" data-day="1" data-category="Imersao Renda com TV - Dia 1" data-available="true" data-src="BOH4d5hYZnU" data-title="Aula 05 - Porque o trafego para WhatsApp">
-            <div class="lesson-thumb"><img src="img/Aula1.png" alt="Aula 05 - Porque o trafego para WhatsApp"></div>
+          <div class="lesson-card" data-id="anatomia" data-day="1" data-category="Imersao Renda com TV - Dia 1" data-available="true" data-src="1145330731" data-title="Aula 05 - Anatomia">
+            <div class="lesson-thumb"><img src="img/Aula1.png" alt="Aula 05 - Anatomia"></div>
             <div class="lesson-body">
-              <h4>Aula 05 - Porque o trafego para WhatsApp</h4>
+              <h4>Aula 05 - Anatomia</h4>
               <p>Aula 05</p>
             </div>
           </div>
-          <div class="lesson-card" data-id="finalizacao-perguntas-respostas" data-day="1" data-category="Imersao Renda com TV - Dia 1" data-available="true" data-src="cd_cGMEiFHU" data-title="Finalizacao - Perguntas e respostas">
-            <div class="lesson-thumb"><img src="img/Aula1.png" alt="Finalizacao - Perguntas e respostas"></div>
+          <div class="lesson-card" data-id="finalizacao-imersao" data-day="1" data-category="Imersao Renda com TV - Dia 1" data-available="true" data-src="1145330798" data-title="Aula 06 - Finalizacao da Imersao">
+            <div class="lesson-thumb"><img src="img/Aula1.png" alt="Aula 06 - Finalizacao da Imersao"></div>
             <div class="lesson-body">
-              <h4>Finalizacao - Perguntas e respostas</h4>
+              <h4>Aula 06 - Finalizacao da Imersao</h4>
               <p>Aula 06</p>
             </div>
           </div>
@@ -126,43 +150,43 @@
 
         <div class="playlist-group" data-day="2">
           <h4>Imersao Renda com TV - Dia 2</h4>
-          <div class="lesson-card" data-id="dia2-introducao" data-day="2" data-category="Imersao Renda com TV - Dia 2" data-available="true" data-src="ttI0FNuPvEk" data-title="Dia 2 - Introducao">
+          <div class="lesson-card" data-id="dia2-introducao" data-day="2" data-category="Imersao Renda com TV - Dia 2" data-available="true" data-src="1145331737" data-title="Dia 2 - Introducao">
             <div class="lesson-thumb"><img src="img/Aula1.png" alt="Dia 2 - Introducao"></div>
             <div class="lesson-body">
               <h4>Dia 2 - Introducao</h4>
               <p>Aula 01</p>
             </div>
           </div>
-          <div class="lesson-card" data-id="dia2-chatbot" data-day="2" data-category="Imersao Renda com TV - Dia 2" data-available="true" data-src="ttI0FNuPvEk" data-title="Dia 2 - Chatbot">
+          <div class="lesson-card" data-id="dia2-chatbot" data-day="2" data-category="Imersao Renda com TV - Dia 2" data-available="true" data-src="1145331787" data-title="Dia 2 - Chatbot">
             <div class="lesson-thumb"><img src="img/Aula1.png" alt="Dia 2 - Chatbot"></div>
             <div class="lesson-body">
               <h4>Dia 2 - Chatbot</h4>
               <p>Aula 02</p>
             </div>
           </div>
-          <div class="lesson-card" data-id="dia2-followup" data-day="2" data-category="Imersao Renda com TV - Dia 2" data-available="true" data-src="VOvPUmarM3g" data-title="Dia 2 - Follow up">
+          <div class="lesson-card" data-id="dia2-followup" data-day="2" data-category="Imersao Renda com TV - Dia 2" data-available="true" data-src="1145331845" data-title="Dia 2 - Follow up">
             <div class="lesson-thumb"><img src="img/Aula1.png" alt="Dia 2 - Follow up"></div>
             <div class="lesson-body">
               <h4>Dia 2 - Follow up</h4>
               <p>Aula 03</p>
             </div>
           </div>
-          <div class="lesson-card" data-id="dia2-followup-pagamento" data-day="2" data-category="Imersao Renda com TV - Dia 2" data-available="true" data-src="2Ueic6pfgSA" data-title="Dia 2 - Follow up pagamento">
+          <div class="lesson-card" data-id="dia2-followup-pagamento" data-day="2" data-category="Imersao Renda com TV - Dia 2" data-available="true" data-src="1145331502" data-title="Dia 2 - Follow up pagamento">
             <div class="lesson-thumb"><img src="img/Aula1.png" alt="Dia 2 - Follow up pagamento"></div>
             <div class="lesson-body">
               <h4>Dia 2 - Follow up pagamento</h4>
               <p>Aula 04</p>
             </div>
           </div>
-          <div class="lesson-card" data-id="dia2-onboarding" data-day="2" data-category="Imersao Renda com TV - Dia 2" data-available="true" data-src="ZOido3JLnfU" data-title="Dia 2 - Onboarding">
+          <div class="lesson-card" data-id="dia2-onboarding" data-day="2" data-category="Imersao Renda com TV - Dia 2" data-available="true" data-src="1145331560" data-title="Dia 2 - Onboarding">
             <div class="lesson-thumb"><img src="img/Aula1.png" alt="Dia 2 - Onboarding"></div>
             <div class="lesson-body">
               <h4>Dia 2 - Onboarding</h4>
               <p>Aula 05</p>
             </div>
           </div>
-          <div class="lesson-card" data-id="dia2-indique-final" data-day="2" data-category="Imersao Renda com TV - Dia 2" data-available="true" data-src="JuHCBXLefHo" data-title="Dia 2 - Indique e finalize">
-alt="Dia 2 - Indique e finalize"></div>
+          <div class="lesson-card" data-id="dia2-indique-final" data-day="2" data-category="Imersao Renda com TV - Dia 2" data-available="true" data-src="1145331619" data-title="Dia 2 - Indique e finalize">
+            <div class="lesson-thumb"><img src="img/Aula1.png" alt="Dia 2 - Indique e finalize"></div>
             <div class="lesson-body">
               <h4>Dia 2 - Indique e finalize</h4>
               <p>Aula 06</p>
@@ -212,14 +236,6 @@ alt="Dia 2 - Indique e finalize"></div>
   </footer>
 
   <script src="https://player.vimeo.com/api/player.js"></script>
-75-2.75a1.25 1.25 0 1 1-1.25 1.25a1.25 1.25 0 0 1 1.25-1.25z"/></svg>
-          <span>Instagram</span>
-        </a>
-      </div>
-    </div>
-  </footer>
-
-  <script src="https://www.youtube.com/iframe_api"></script>
   <script src="scripts.js"></script>
 </body>
 </html>

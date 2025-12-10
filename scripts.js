@@ -190,12 +190,12 @@ const drawer = document.getElementById('drawer');
 const closeDrawerBtn = document.querySelector('.close-drawer');
 
 const FALLBACK_MENTORIAS = [
-  { id: 'apresentacao-imersao', title: 'Apresentacao da Imersao - Como eu comecei', category: 'Imersao Renda com TV - Dia 1', keywords: 'apresentacao inicio jornada dia1', available: true, href: 'watch.html?video=apresentacao-imersao&day=1' },
+  { id: 'apresentacao-imersao', title: 'Aula 01 - Apresentacao da Imersao', category: 'Imersao Renda com TV - Dia 1', keywords: 'apresentacao inicio jornada dia1', available: true, href: 'watch.html?video=apresentacao-imersao&day=1' },
   { id: 'captacao-clientes', title: 'Aula 02 - Captacao de Clientes', category: 'Imersao Renda com TV - Dia 1', keywords: 'captacao clientes lead dia1', available: true, href: 'watch.html?video=captacao-clientes&day=1' },
   { id: 'trafego-pago-subnicho', title: 'Aula 03 - Trafego pago para subnicho', category: 'Imersao Renda com TV - Dia 1', keywords: 'trafego pago subnicho dia1', available: true, href: 'watch.html?video=trafego-pago-subnicho&day=1' },
-  { id: 'analise-conta-anuncios', title: 'Aula 04 - Analise da conta de anuncios', category: 'Imersao Renda com TV - Dia 1', keywords: 'analise conta anuncios dia1', available: true, href: 'watch.html?video=analise-conta-anuncios&day=1' },
-  { id: 'trafego-whatsapp', title: 'Aula 05 - Porque o trafego para WhatsApp', category: 'Imersao Renda com TV - Dia 1', keywords: 'trafego whatsapp dia1', available: true, href: 'watch.html?video=trafego-whatsapp&day=1' },
-  { id: 'finalizacao-perguntas-respostas', title: 'Finalizacao - Perguntas e respostas', category: 'Imersao Renda com TV - Dia 1', keywords: 'finalizacao perguntas respostas dia1', available: true, href: 'watch.html?video=finalizacao-perguntas-respostas&day=1' },
+  { id: 'anatomia-anuncio', title: 'Aula 04 - Anatomia de Anuncio', category: 'Imersao Renda com TV - Dia 1', keywords: 'anatomia anuncio criativo dia1', available: true, href: 'watch.html?video=anatomia-anuncio&day=1' },
+  { id: 'anatomia', title: 'Aula 05 - Anatomia', category: 'Imersao Renda com TV - Dia 1', keywords: 'anatomia aula5 dia1', available: true, href: 'watch.html?video=anatomia&day=1' },
+  { id: 'finalizacao-imersao', title: 'Aula 06 - Finalizacao da Imersao', category: 'Imersao Renda com TV - Dia 1', keywords: 'finalizacao perguntas respostas dia1', available: true, href: 'watch.html?video=finalizacao-imersao&day=1' },
   { id: 'dia2-introducao', title: 'Dia 2 - Introducao', category: 'Imersao Renda com TV - Dia 2', keywords: 'dia2 introducao', available: true, href: 'watch.html?video=dia2-introducao&day=2' },
   { id: 'dia2-chatbot', title: 'Dia 2 - Chatbot', category: 'Imersao Renda com TV - Dia 2', keywords: 'dia2 chatbot automacao', available: true, href: 'watch.html?video=dia2-chatbot&day=2' },
   { id: 'dia2-followup', title: 'Dia 2 - Follow up', category: 'Imersao Renda com TV - Dia 2', keywords: 'dia2 followup acompanhamento', available: true, href: 'watch.html?video=dia2-followup&day=2' },
@@ -348,61 +348,98 @@ if (document.body.classList.contains('page-watch')) {
   const playlistGroups = Array.from(document.querySelectorAll('.playlist-group'));
   const playPauseBtn = document.getElementById('playPauseBtn');
   const backBtn = document.getElementById('backBtn');
+  const forwardBtn = document.getElementById('forwardBtn');
+  const progressRange = document.getElementById('progressRange');
+  const currentTimeEl = document.getElementById('currentTime');
+  const durationEl = document.getElementById('durationTime');
+  const muteBtn = document.getElementById('muteBtn');
+  const fullscreenBtn = document.getElementById('fullscreenBtn');
+  const playerShell = document.querySelector('.watch-player');
+  const videoClickOverlay = document.getElementById('videoClickOverlay');
   let lessonCards = Array.from(document.querySelectorAll('.lesson-card'));
-  let ytPlayer = null;
+  let vimeoPlayer = null;
   let currentVideoId = 'apresentacao-imersao';
-  let isPlaying = true;
+  let isPlaying = false;
+  let cachedDuration = 0;
+  let lastVolume = 1;
+  let isMuted = false;
 
-  function loadYouTubeApi() {
-    return new Promise((resolve) => {
-      if (window.YT?.Player) return resolve();
-      const tag = document.createElement('script');
-      tag.src = 'https://www.youtube.com/iframe_api';
-      document.head.appendChild(tag);
-      window.onYouTubeIframeAPIReady = () => resolve();
-    });
+  function setPlayUi(playing) {
+    if (!playPauseBtn) return;
+    if (playing) {
+      playPauseBtn.innerHTML = '<span class="icon">⏸</span>';
+      playPauseBtn.setAttribute('aria-label', 'Pausar');
+    } else {
+      playPauseBtn.innerHTML = '<span class="icon">⏵</span>';
+      playPauseBtn.setAttribute('aria-label', 'Reproduzir');
+    }
   }
 
-  function ensurePlayer(videoId) {
-    return loadYouTubeApi().then(() => {
-      if (ytPlayer) return ytPlayer;
-      ytPlayer = new window.YT.Player(mainVideo, {
-        videoId,
-        playerVars: {
-          rel: 0,
-          modestbranding: 1,
-          controls: 0,
-          playsinline: 1,
-          iv_load_policy: 3,
-        },
-        events: {
-          onReady: (event) => {
-            event.target.setVolume(100);
-            event.target.setPlaybackRate(1);
-            event.target.playVideo();
-          },
-          onStateChange: (event) => {
-            const state = event.data;
-            if (state === window.YT.PlayerState.PLAYING) {
-              isPlaying = true;
-              if (playPauseBtn) playPauseBtn.textContent = 'Pausar';
-            } else if (state === window.YT.PlayerState.PAUSED) {
-              isPlaying = false;
-              if (playPauseBtn) playPauseBtn.textContent = 'Reproduzir';
-            }
-          },
-        },
-      });
-      return ytPlayer;
+  function setMuteUi(muted) {
+    if (!muteBtn) return;
+    muteBtn.innerHTML = `<span class="icon icon-green">${muted ? '🔇' : '🔊'}</span>`;
+    muteBtn.setAttribute('aria-label', muted ? 'Ativar som' : 'Desativar som');
+  }
+
+  function getPlayer() {
+    if (!window.Vimeo?.Player) {
+      console.error('Vimeo Player nao carregou.');
+      return null;
+    }
+    if (vimeoPlayer) return vimeoPlayer;
+    vimeoPlayer = new window.Vimeo.Player(mainVideo, {
+      autopause: false,
+      controls: false,
+      playsinline: true,
+      dnt: true,
     });
+    vimeoPlayer.on('play', () => {
+      isPlaying = true;
+      setPlayUi(true);
+    });
+    vimeoPlayer.on('pause', () => {
+      isPlaying = false;
+      setPlayUi(false);
+    });
+    vimeoPlayer.on('ended', () => {
+      isPlaying = false;
+      setPlayUi(false);
+    });
+    vimeoPlayer.on('timeupdate', (data) => {
+      cachedDuration = data.duration || cachedDuration;
+      updateTimeUi(data.seconds || 0, cachedDuration);
+    });
+    return vimeoPlayer;
   }
 
   function playVideoId(videoId) {
-    ensurePlayer(videoId).then((player) => {
-      player.loadVideoById({ videoId });
-      player.setPlaybackRate(1);
-      player.playVideo();
+    const player = getPlayer();
+    if (!player) return;
+    player.loadVideo(videoId).then(() => {
+      player.getDuration().then((dur) => {
+        cachedDuration = dur || 0;
+        updateTimeUi(0, cachedDuration);
+      }).catch(() => {});
+      player.play();
     }).catch(() => {});
+  }
+
+  function formatTime(seconds) {
+    const total = Math.floor(seconds || 0);
+    const mins = Math.floor(total / 60);
+    const secs = total % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  function updateTimeUi(current, duration) {
+    if (currentTimeEl) currentTimeEl.textContent = formatTime(current);
+    if (durationEl) durationEl.textContent = formatTime(duration);
+    if (progressRange && duration > 0) {
+      const value = Math.min(1000, Math.max(0, Math.round((current / duration) * 1000)));
+      progressRange.value = value;
+      const percent = value / 10;
+      progressRange.style.background = `linear-gradient(90deg, rgba(240,77,77,0.9) ${percent}%, rgba(255,255,255,0.25) ${percent}%)`;
+    }
   }
 
   function handleLessonClick(card) {
@@ -415,6 +452,8 @@ if (document.body.classList.contains('page-watch')) {
     const id = card.dataset.id || title.toLowerCase().replace(/\s+/g, '-');
     const category = card.dataset.category || 'Imersao Renda com TV';
     currentVideoId = id;
+    cachedDuration = 0;
+    updateTimeUi(0, 0);
     if (srcId) {
       playVideoId(srcId);
     }
@@ -453,22 +492,102 @@ if (document.body.classList.contains('page-watch')) {
 
   if (playPauseBtn) {
     playPauseBtn.addEventListener('click', () => {
-      if (!ytPlayer) return;
+      const player = getPlayer();
+      if (!player) return;
       if (isPlaying) {
-        ytPlayer.pauseVideo();
+        player.pause();
       } else {
-        ytPlayer.playVideo();
+        player.play();
       }
     });
+    setPlayUi(false);
   }
 
   if (backBtn) {
     backBtn.addEventListener('click', () => {
-      if (!ytPlayer) return;
-      ytPlayer.getCurrentTime().then((time) => {
+      const player = getPlayer();
+      if (!player) return;
+      player.getCurrentTime().then((time) => {
         const target = Math.max(0, time - 10);
-        ytPlayer.seekTo(target, true);
+        player.setCurrentTime(target);
       }).catch(() => {});
+    });
+  }
+
+  if (forwardBtn) {
+    forwardBtn.addEventListener('click', () => {
+      const player = getPlayer();
+      if (!player) return;
+      player.getCurrentTime().then((time) => {
+        const target = Math.max(0, time + 10);
+        player.setCurrentTime(target);
+      }).catch(() => {});
+    });
+  }
+
+  if (progressRange) {
+    progressRange.addEventListener('input', () => {
+      if (!cachedDuration) return;
+      const target = (Number(progressRange.value) / 1000) * cachedDuration;
+      updateTimeUi(target, cachedDuration);
+    });
+    progressRange.addEventListener('change', () => {
+      const player = getPlayer();
+      if (!player || !cachedDuration) return;
+      const target = (Number(progressRange.value) / 1000) * cachedDuration;
+      player.setCurrentTime(target).catch(() => {});
+    });
+  }
+
+  if (muteBtn) {
+    muteBtn.addEventListener('click', () => {
+      const player = getPlayer();
+      if (!player) return;
+      player.getVolume().then((vol) => {
+        if (vol > 0) {
+          lastVolume = vol;
+          isMuted = true;
+          return player.setVolume(0).then(() => setMuteUi(true));
+        }
+        const restore = lastVolume > 0 ? lastVolume : 1;
+        isMuted = false;
+        return player.setVolume(restore).then(() => {
+          setMuteUi(false);
+        });
+      }).catch(() => {});
+    });
+    setMuteUi(false);
+  }
+
+  if (fullscreenBtn && playerShell) {
+    fullscreenBtn.addEventListener('click', () => {
+      const fsElem = document.fullscreenElement;
+      if (!fsElem) {
+        playerShell.requestFullscreen?.().catch(() => {});
+      } else {
+        document.exitFullscreen?.().catch(() => {});
+      }
+    });
+    document.addEventListener('fullscreenchange', () => {
+      const fsElem = document.fullscreenElement;
+      fullscreenBtn.classList.toggle('active', Boolean(fsElem));
+    });
+  }
+
+  if (videoClickOverlay) {
+    videoClickOverlay.addEventListener('click', (e) => {
+      const rect = videoClickOverlay.getBoundingClientRect();
+      const y = e.clientY - rect.top;
+      const topSafe = 70;      // ignora cliques no topo
+      const bottomSafe = 110;  // ignora cliques no rodape (controles)
+      if (y < topSafe || y > rect.height - bottomSafe) return;
+      const player = getPlayer();
+      if (!player) return;
+      if (isPlaying) {
+        player.pause();
+      } else {
+        player.play();
+      }
     });
   }
 
