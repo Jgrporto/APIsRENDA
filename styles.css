@@ -339,7 +339,7 @@ a { color: inherit; text-decoration: none; }
 
 .card-banner img {
   width: 100%;
-  height: 100%;
+  height: 140px;
   object-fit: cover;
   display: block;
 }
