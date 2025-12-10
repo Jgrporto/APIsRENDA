@@ -190,12 +190,18 @@ const drawer = document.getElementById('drawer');
 const closeDrawerBtn = document.querySelector('.close-drawer');
 
 const FALLBACK_MENTORIAS = [
-  { id: 'apresentacao-imersao', title: 'Apresentacao da Imersao - Como eu comecei', category: 'Imersao Renda com TV', keywords: 'apresentacao inicio jornada', available: true, href: 'watch.html?video=apresentacao-imersao' },
-  { id: 'captacao-clientes', title: 'Aula 02 - Captacao de Clientes', category: 'Imersao Renda com TV', keywords: 'captacao clientes lead', available: true, href: 'watch.html?video=captacao-clientes' },
-  { id: 'trafego-pago-subnicho', title: 'Aula 03 - Trafego pago para subnicho', category: 'Imersao Renda com TV', keywords: 'trafego pago subnicho', available: true, href: 'watch.html?video=trafego-pago-subnicho' },
-  { id: 'analise-conta-anuncios', title: 'Aula 04 - Analise da conta de anuncios', category: 'Imersao Renda com TV', keywords: 'analise conta anuncios', available: true, href: 'watch.html?video=analise-conta-anuncios' },
-  { id: 'trafego-whatsapp', title: 'Aula 05 - Porque o trafego para WhatsApp', category: 'Imersao Renda com TV', keywords: 'trafego whatsapp', available: true, href: 'watch.html?video=trafego-whatsapp' },
-  { id: 'finalizacao-perguntas-respostas', title: 'Finalizacao - Perguntas e respostas', category: 'Imersao Renda com TV', keywords: 'finalizacao perguntas respostas', available: true, href: 'watch.html?video=finalizacao-perguntas-respostas' },
+  { id: 'apresentacao-imersao', title: 'Apresentacao da Imersao - Como eu comecei', category: 'Imersao Renda com TV - Dia 1', keywords: 'apresentacao inicio jornada dia1', available: true, href: 'watch.html?video=apresentacao-imersao&day=1' },
+  { id: 'captacao-clientes', title: 'Aula 02 - Captacao de Clientes', category: 'Imersao Renda com TV - Dia 1', keywords: 'captacao clientes lead dia1', available: true, href: 'watch.html?video=captacao-clientes&day=1' },
+  { id: 'trafego-pago-subnicho', title: 'Aula 03 - Trafego pago para subnicho', category: 'Imersao Renda com TV - Dia 1', keywords: 'trafego pago subnicho dia1', available: true, href: 'watch.html?video=trafego-pago-subnicho&day=1' },
+  { id: 'analise-conta-anuncios', title: 'Aula 04 - Analise da conta de anuncios', category: 'Imersao Renda com TV - Dia 1', keywords: 'analise conta anuncios dia1', available: true, href: 'watch.html?video=analise-conta-anuncios&day=1' },
+  { id: 'trafego-whatsapp', title: 'Aula 05 - Porque o trafego para WhatsApp', category: 'Imersao Renda com TV - Dia 1', keywords: 'trafego whatsapp dia1', available: true, href: 'watch.html?video=trafego-whatsapp&day=1' },
+  { id: 'finalizacao-perguntas-respostas', title: 'Finalizacao - Perguntas e respostas', category: 'Imersao Renda com TV - Dia 1', keywords: 'finalizacao perguntas respostas dia1', available: true, href: 'watch.html?video=finalizacao-perguntas-respostas&day=1' },
+  { id: 'dia2-introducao', title: 'Dia 2 - Introducao', category: 'Imersao Renda com TV - Dia 2', keywords: 'dia2 introducao', available: true, href: 'watch.html?video=dia2-introducao&day=2' },
+  { id: 'dia2-chatbot', title: 'Dia 2 - Chatbot', category: 'Imersao Renda com TV - Dia 2', keywords: 'dia2 chatbot automacao', available: true, href: 'watch.html?video=dia2-chatbot&day=2' },
+  { id: 'dia2-followup', title: 'Dia 2 - Follow up', category: 'Imersao Renda com TV - Dia 2', keywords: 'dia2 followup acompanhamento', available: true, href: 'watch.html?video=dia2-followup&day=2' },
+  { id: 'dia2-followup-pagamento', title: 'Dia 2 - Follow up pagamento', category: 'Imersao Renda com TV - Dia 2', keywords: 'dia2 followup pagamento', available: true, href: 'watch.html?video=dia2-followup-pagamento&day=2' },
+  { id: 'dia2-onboarding', title: 'Dia 2 - Onboarding', category: 'Imersao Renda com TV - Dia 2', keywords: 'dia2 onboarding', available: true, href: 'watch.html?video=dia2-onboarding&day=2' },
+  { id: 'dia2-indique-final', title: 'Dia 2 - Indique e finalize', category: 'Imersao Renda com TV - Dia 2', keywords: 'dia2 indique finalize', available: true, href: 'watch.html?video=dia2-indique-final&day=2' },
 ];
 
 function collectCardData() {
@@ -338,31 +344,102 @@ if (document.body.classList.contains('page-mentoria')) {
 if (document.body.classList.contains('page-watch')) {
   const mainVideo = document.getElementById('mainVideo');
   const watchTitle = document.querySelector('.watch-title');
-  const lessonCards = Array.from(document.querySelectorAll('.lesson-card'));
-
+  const watchTag = document.querySelector('.watch-tag');
+  const playlistGroups = Array.from(document.querySelectorAll('.playlist-group'));
+  const playPauseBtn = document.getElementById('playPauseBtn');
+  const backBtn = document.getElementById('backBtn');
+  let lessonCards = Array.from(document.querySelectorAll('.lesson-card'));
+  let ytPlayer = null;
   let currentVideoId = 'apresentacao-imersao';
+  let isPlaying = true;
+
+  function loadYouTubeApi() {
+    return new Promise((resolve) => {
+      if (window.YT?.Player) return resolve();
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(tag);
+      window.onYouTubeIframeAPIReady = () => resolve();
+    });
+  }
+
+  function ensurePlayer(videoId) {
+    return loadYouTubeApi().then(() => {
+      if (ytPlayer) return ytPlayer;
+      ytPlayer = new window.YT.Player(mainVideo, {
+        videoId,
+        playerVars: {
+          rel: 0,
+          modestbranding: 1,
+          controls: 0,
+          playsinline: 1,
+          iv_load_policy: 3,
+        },
+        events: {
+          onReady: (event) => {
+            event.target.setVolume(100);
+            event.target.setPlaybackRate(1);
+            event.target.playVideo();
+          },
+          onStateChange: (event) => {
+            const state = event.data;
+            if (state === window.YT.PlayerState.PLAYING) {
+              isPlaying = true;
+              if (playPauseBtn) playPauseBtn.textContent = 'Pausar';
+            } else if (state === window.YT.PlayerState.PAUSED) {
+              isPlaying = false;
+              if (playPauseBtn) playPauseBtn.textContent = 'Reproduzir';
+            }
+          },
+        },
+      });
+      return ytPlayer;
+    });
+  }
+
+  function playVideoId(videoId) {
+    ensurePlayer(videoId).then((player) => {
+      player.loadVideoById({ videoId });
+      player.setPlaybackRate(1);
+      player.playVideo();
+    }).catch(() => {});
+  }
 
   function handleLessonClick(card) {
     const available = card.dataset.available !== 'false';
     if (!available) return;
     lessonCards.forEach(c => c.classList.remove('active'));
     card.classList.add('active');
-    const src = card.dataset.src;
+    const srcId = card.dataset.src;
     const title = card.dataset.title || 'Video';
     const id = card.dataset.id || title.toLowerCase().replace(/\s+/g, '-');
+    const category = card.dataset.category || 'Imersao Renda com TV';
     currentVideoId = id;
-    if (mainVideo && src) {
-      mainVideo.setAttribute('src', src);
+    if (srcId) {
+      playVideoId(srcId);
     }
     if (watchTitle) {
       watchTitle.textContent = title;
       watchTitle.dataset.videoId = id;
+    }
+    if (watchTag) {
+      watchTag.textContent = category;
     }
   }
 
   function initLessons() {
     const params = new URLSearchParams(window.location.search);
     const requested = params.get('video');
+    const requestedDay = params.get('day');
+
+    if (requestedDay) {
+      lessonCards = lessonCards.filter(card => card.dataset.day === requestedDay);
+      playlistGroups.forEach(group => {
+        const matchesDay = (group.dataset.day || '') === requestedDay;
+        group.hidden = !matchesDay;
+      });
+    }
+
     const preferred = lessonCards.find(card => (card.dataset.id || '') === requested && card.dataset.available !== 'false');
     const fallback = lessonCards.find(card => card.dataset.available !== 'false');
     const startCard = preferred || fallback;
@@ -371,6 +448,27 @@ if (document.body.classList.contains('page-watch')) {
     }
     lessonCards.forEach(card => {
       card.addEventListener('click', () => handleLessonClick(card));
+    });
+  }
+
+  if (playPauseBtn) {
+    playPauseBtn.addEventListener('click', () => {
+      if (!ytPlayer) return;
+      if (isPlaying) {
+        ytPlayer.pauseVideo();
+      } else {
+        ytPlayer.playVideo();
+      }
+    });
+  }
+
+  if (backBtn) {
+    backBtn.addEventListener('click', () => {
+      if (!ytPlayer) return;
+      ytPlayer.getCurrentTime().then((time) => {
+        const target = Math.max(0, time - 10);
+        ytPlayer.seekTo(target, true);
+      }).catch(() => {});
     });
   }
 

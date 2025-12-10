@@ -716,6 +716,18 @@ footer {
   background: #000;
 }
 
+.watch-player .embed-wrapper {
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.watch-player .embed-wrapper iframe {
+  width: 120%;
+  height: 115%;
+  left: -10%;
+  top: -6%;
+}
+
 .watch-meta {
   padding: 10px 0 0;
   display: flex;
