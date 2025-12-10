@@ -740,6 +740,18 @@ footer {
   background: transparent;
 }
 
+.watch-player.fullscreen-mode.controls-hidden {
+  cursor: none;
+}
+
+.watch-player.fullscreen-mode.controls-hidden .video-click-overlay {
+  cursor: none;
+}
+
+.hide-cursor {
+  cursor: none !important;
+}
+
 .video-controls {
   position: absolute;
   left: 0;
@@ -822,6 +834,70 @@ footer {
   gap: 10px;
 }
 
+.volume-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.volume-pop {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  padding: 6px 10px;
+  height: 32px;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+
+.volume-control:hover .volume-pop,
+.volume-control:focus-within .volume-pop {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.volume-pop input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 90px;
+  height: 6px;
+  background: linear-gradient(90deg, rgba(58, 212, 106, 0.9) 0%, rgba(255, 255, 255, 0.25) 0%);
+  border-radius: 999px;
+  outline: none;
+  cursor: pointer;
+}
+
+.volume-pop input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.18);
+}
+
+.volume-pop input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: none;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.18);
+}
+
+.watch-player.controls-hidden .video-controls {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transform: translateY(6px);
+}
+
 .control-btn {
   border: 1px solid rgba(255, 255, 255, 0.18);
   background: rgba(0, 0, 0, 0.45);
@@ -846,13 +922,20 @@ footer {
   line-height: 1;
 }
 
+.control-btn .icon-svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+  display: inline-block;
+}
+
 .control-btn .label {
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.02em;
 }
 
-.control-btn .icon.icon-green { color: #3ad46a; }
+.control-btn .icon-green { color: #3ad46a; fill: #3ad46a; }
 
 .watch-meta {
   padding: 10px 0 0;

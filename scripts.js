@@ -353,6 +353,7 @@ if (document.body.classList.contains('page-watch')) {
   const currentTimeEl = document.getElementById('currentTime');
   const durationEl = document.getElementById('durationTime');
   const muteBtn = document.getElementById('muteBtn');
+  const volumeRange = document.getElementById('volumeRange');
   const fullscreenBtn = document.getElementById('fullscreenBtn');
   const playerShell = document.querySelector('.watch-player');
   const videoClickOverlay = document.getElementById('videoClickOverlay');
@@ -363,6 +364,7 @@ if (document.body.classList.contains('page-watch')) {
   let cachedDuration = 0;
   let lastVolume = 1;
   let isMuted = false;
+  let controlsHideTimer = null;
 
   function setPlayUi(playing) {
     if (!playPauseBtn) return;
@@ -381,6 +383,17 @@ if (document.body.classList.contains('page-watch')) {
     muteBtn.setAttribute('aria-label', muted ? 'Ativar som' : 'Desativar som');
   }
 
+  function setVolumeUi(vol) {
+    const clamped = Math.max(0, Math.min(1, Number(vol)));
+    if (volumeRange) {
+      volumeRange.value = Math.round(clamped * 100);
+      const pct = Math.round(clamped * 100);
+      volumeRange.style.background = `linear-gradient(90deg, rgba(58,212,106,0.9) ${pct}%, rgba(255,255,255,0.25) ${pct}%)`;
+    }
+    isMuted = clamped === 0;
+    setMuteUi(isMuted);
+  }
+
   function getPlayer() {
     if (!window.Vimeo?.Player) {
       console.error('Vimeo Player nao carregou.');
@@ -392,6 +405,14 @@ if (document.body.classList.contains('page-watch')) {
       controls: false,
       playsinline: true,
       dnt: true,
+    });
+    vimeoPlayer.getVolume().then((vol) => {
+      if (typeof vol === 'number') {
+        lastVolume = vol;
+        setVolumeUi(vol);
+      }
+    }).catch(() => {
+      setVolumeUi(lastVolume);
     });
     vimeoPlayer.on('play', () => {
       isPlaying = true;
@@ -547,16 +568,47 @@ if (document.body.classList.contains('page-watch')) {
         if (vol > 0) {
           lastVolume = vol;
           isMuted = true;
-          return player.setVolume(0).then(() => setMuteUi(true));
+          return player.setVolume(0).then(() => setVolumeUi(0));
         }
         const restore = lastVolume > 0 ? lastVolume : 1;
         isMuted = false;
         return player.setVolume(restore).then(() => {
-          setMuteUi(false);
+          setVolumeUi(restore);
         });
       }).catch(() => {});
     });
     setMuteUi(false);
+  }
+
+  if (volumeRange) {
+    volumeRange.addEventListener('input', () => {
+      const player = getPlayer();
+      if (!player) return;
+      const vol = Math.max(0, Math.min(1, Number(volumeRange.value) / 100));
+      if (vol > 0) lastVolume = vol;
+      player.setVolume(vol).then(() => {
+        setVolumeUi(vol);
+      }).catch(() => {});
+    });
+  }
+
+  function resetControlsHideTimer() {
+    if (controlsHideTimer) clearTimeout(controlsHideTimer);
+    if (playerShell) playerShell.classList.remove('controls-hidden');
+    document.body?.classList.remove('hide-cursor');
+    controlsHideTimer = setTimeout(() => {
+      if (playerShell) playerShell.classList.add('controls-hidden');
+      if (document.fullscreenElement) {
+        document.body?.classList.add('hide-cursor');
+      }
+    }, 3000);
+  }
+
+  if (playerShell) {
+    ['mousemove', 'mouseenter'].forEach(evt => {
+      playerShell.addEventListener(evt, resetControlsHideTimer);
+    });
+    resetControlsHideTimer();
   }
 
   if (fullscreenBtn && playerShell) {
@@ -570,7 +622,18 @@ if (document.body.classList.contains('page-watch')) {
     });
     document.addEventListener('fullscreenchange', () => {
       const fsElem = document.fullscreenElement;
-      fullscreenBtn.classList.toggle('active', Boolean(fsElem));
+      const isFs = Boolean(fsElem);
+      fullscreenBtn.classList.toggle('active', isFs);
+      if (playerShell) {
+        const applied = fsElem && (fsElem === playerShell || playerShell.contains(fsElem));
+        playerShell.classList.toggle('fullscreen-mode', applied);
+        if (!applied) {
+          playerShell.classList.remove('controls-hidden');
+        }
+      }
+      if (!isFs) {
+        document.body?.classList.remove('hide-cursor');
+      }
     });
   }
 

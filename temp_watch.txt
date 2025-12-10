@@ -58,7 +58,7 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
           Voltar para mentorias
         </a>
-                <div class="watch-player">
+        <div class="watch-player">
           <div class="embed-wrapper" style="padding:56.25% 0 0 0;position:relative;">
             <iframe id="mainVideo" src="https://player.vimeo.com/video/1145330898?controls=0&amp;title=0&amp;byline=0&amp;portrait=0&amp;badge=0&amp;autopause=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Aula 01 - Apresentacao da Imersao" allowfullscreen></iframe>
             <div class="video-click-overlay" id="videoClickOverlay" aria-hidden="true"></div>
@@ -70,16 +70,25 @@
             </div>
             <div class="controls-row">
               <div class="controls-left">
-                <button class="control-btn" id="playPauseBtn" type="button" aria-label="Reproduzir ou pausar"><span class="icon">&#9655;</span></button>
-                <button class="control-btn" id="backBtn" type="button" aria-label="Voltar 10 segundos"><span class="icon icon-green" aria-hidden="true">&#8634;</span><span class="label">10s</span></button>
-                <button class="control-btn" id="forwardBtn" type="button" aria-label="Avancar 10 segundos"><span class="icon icon-green" aria-hidden="true">&#8635;</span><span class="label">10s</span></button>
-                <div class="volume-control">
-                  <button class="control-btn" id="muteBtn" type="button" aria-label="Ativar ou desativar som"><span class="icon icon-green" aria-hidden="true">&#128266;</span></button>
-                  <div class="volume-pop"><input type="range" id="volumeRange" min="0" max="100" value="100" step="1" aria-label="Volume"></div>
-                </div>
+                <button class="control-btn" id="playPauseBtn" type="button" aria-label="Reproduzir ou pausar">
+                  <span class="icon">⏵</span>
+                </button>
+                <button class="control-btn" id="backBtn" type="button" aria-label="Voltar 10 segundos">
+                  <span class="icon icon-green" aria-hidden="true">↺</span>
+                  <span class="label">10s</span>
+                </button>
+                <button class="control-btn" id="forwardBtn" type="button" aria-label="Avancar 10 segundos">
+                  <span class="icon icon-green" aria-hidden="true">↻</span>
+                  <span class="label">10s</span>
+                </button>
               </div>
               <div class="controls-right">
-                <button class="control-btn" id="fullscreenBtn" type="button" aria-label="Tela cheia"><span class="icon">&#x26F6;</span></button>
+                <button class="control-btn" id="muteBtn" type="button" aria-label="Ativar ou desativar som">
+                  <span class="icon icon-green">🔊</span>
+                </button>
+                <button class="control-btn" id="fullscreenBtn" type="button" aria-label="Tela cheia">
+                  <span class="icon">⛶</span>
+                </button>
               </div>
             </div>
           </div>
@@ -232,13 +241,4 @@
   <script src="scripts.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
 
